@@ -301,10 +301,9 @@ This separation makes the system easier to extend, debug, and reason about compa
 ---
 ## 📖 References
 
-- [LangGraph Documentation (Python)](https://docs.langchain.com/oss/python/langgraph/overview)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [LangChain Tools (Python)](https://python.langchain.com/docs/modules/tools/)
-- [LangChain Agents (Python)](https://python.langchain.com/docs/modules/agents/)
+- [LangGraph Documentation](https://docs.langchain.com/oss/python/langgraph/overview)
+- [LangChain Agents](https://docs.langchain.com/oss/javascript/langchain/agents)
+- [LangChain Tools](https://python.langchain.com/docs/modules/tools/)
   
 ---
 
