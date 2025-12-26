@@ -278,11 +278,11 @@ Tell me a joke
 
 ### **Expected Behavior**
 
-- ✅ All tools execute successfully
-- ✅ Agent maintains context across turns
-- ✅ Can recall previous conversation
-- ✅ Answers simple questions without tools
-- ✅ No infinite loops or errors
+- All tools execute successfully
+- Agent maintains context across turns
+- Can recall previous conversation
+- Answers simple questions without tools
+- No infinite loops or errors
 
 ---
 
