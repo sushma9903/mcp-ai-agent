@@ -1,17 +1,20 @@
+---
+
 # 🤖 MCP AI Agent with LangGraph
 
-An intelligent AI agent that connects to Model Context Protocol (MCP) servers, dynamically discovers tools, and maintains conversation memory using LangGraph.
+An intelligent AI agent that connects to **Model Context Protocol (MCP)** servers, dynamically discovers tools, and maintains conversation memory using **LangGraph**.
 
 ---
 
 ## 📋 Overview
 
 This project implements an AI agent that:
-- Connects to MCP servers via STDIO transport
-- Dynamically discovers and invokes tools based on user intent
-- Maintains full conversation history and context
-- Uses LangGraph for robust state management
-- Supports weather queries, stock prices, and web search
+
+* Connects to MCP servers via **STDIO transport**
+* Dynamically discovers and invokes tools based on user intent
+* Maintains full conversation history and context
+* Uses **LangGraph** for explicit state management
+* Supports weather queries, stock prices, and web search
 
 ---
 
@@ -40,7 +43,7 @@ This project implements an AI agent that:
 │   │                 Tool Node (Executors)             │   │
 │   │                                                   │   │
 │   │ • Executes selected tools                         │   │
-│   │ • Handles tool inputs and outputs                 │   │
+│   │ • Validates inputs using schemas                  │   │
 │   │ • Returns results back to the agent               │   │
 │   └───────────────────────┬───────────────────────────┘   │
 └───────────────────────────┼───────────────────────────────┘
@@ -66,57 +69,62 @@ This project implements an AI agent that:
 │ Exposes tools via MCP with JSON schemas                   │
 │ Contains no agent or decision logic                       │
 └───────────────────────────────────────────────────────────┘
-
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### **Prerequisites**
+### Prerequisites
 
-- Python 3.9+
-- Groq API key
-- MCP server (included in `server/main.py`)
+* Python **3.9+**
+* Groq API key
+* MCP server (included in `server/main.py`)
 
-### **Installation**
+---
 
-1. **Clone the repository**
-   ```bash
-   cd task2-mcp+agent
-   ```
+### Installation
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Clone the repository:
 
-3. **Set up environment variables**
-   
-   Create a `.env` file in the root directory:
-   ```env
-   GROQ_API_KEY=your_groq_api_key_here
-   ```
+```bash
+git clone <your-repository-url>
+cd <repository-name>
+```
 
-4. **Run the agent**
-   ```bash
-   python agent/agent.py
-   ```
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Set up environment variables:
+
+Create a `.env` file in the root directory:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Run the agent:
+
+```bash
+python agent/agent.py
+```
 
 ---
 
 ## 📦 Dependencies
 
-```txt
-langchain-groq>=0.2.0
-langchain>=0.3.0
-langgraph>=0.2.0
-python-dotenv>=1.0.0
-mcp>=1.0.0
-pydantic>=2.0.0
-```
+* `langchain-groq>=0.2.0`
+* `langchain>=0.3.0`
+* `langgraph>=0.2.0`
+* `python-dotenv>=1.0.0`
+* `mcp>=1.0.0`
+* `pydantic>=2.0.0`
 
 Install all at once:
+
 ```bash
 pip install langchain-groq langchain langgraph python-dotenv mcp pydantic
 ```
@@ -125,42 +133,44 @@ pip install langchain-groq langchain langgraph python-dotenv mcp pydantic
 
 ## 🎯 Usage Examples
 
-### **Basic Queries**
+### Basic Queries
 
 ```
 You: What is the weather in Paris?
-Agent: The current weather in Paris is a clear sky with a temperature 
-of 3.87°C, humidity of 73%, and wind speed of 4.12 m/s.
-
-You: What is the stock price of TSLA?
-Agent: The current stock price of TSLA is $485.4.
-
-You: Search the web for latest AI news
-Agent: Based on the search results, here are the latest AI news:
-* Google has announced its first AI hub in India...
+Agent: The current weather in Paris is a clear sky with a temperature of 3.87°C, humidity of 73%, and wind speed of 4.12 m/s.
 ```
 
-### **Context-Aware Conversations**
+```
+You: What is the stock price of TSLA?
+Agent: The current stock price of TSLA is $485.4.
+```
+
+```
+You: Search the web for latest AI news
+Agent: Based on the search results, here are the latest AI-related updates...
+```
+
+---
+
+### Context-Aware Conversations
 
 ```
 You: What is the weather in London?
-Agent: The current weather in London is 6.04°C...
-
 You: What about Tokyo?
-Agent: The current weather in Tokyo is 2.97°C...
-
 You: What about the previous city?
 Agent: London.
 ```
 
-### **Memory Recall**
+---
+
+### Memory Recall
 
 ```
 You: What questions have I asked you?
-Agent: You have asked me the following questions:
+Agent: You have asked the following questions:
 1. What is the weather in Paris?
-2. What about bangalore?
-3. What is the stock price of TSLA?
+2. What is the stock price of TSLA?
+3. Search the web for latest AI news
 ...
 ```
 
@@ -168,74 +178,64 @@ Agent: You have asked me the following questions:
 
 ## 🔧 Technical Details
 
-### **Component Breakdown**
+### Component Breakdown
 
-#### **1. MCPClient Class**
-- Manages STDIO connection to MCP server
-- Spawns server process as subprocess
-- Handles bidirectional communication
-- Discovers available tools via MCP protocol
+#### 1. MCPClient
 
-#### **2. Tool Conversion**
-- Converts MCP tool schemas to LangChain StructuredTools
-- Maps JSON schema types to Python types (string→str, integer→int)
-- Creates Pydantic models for input validation
-- Wraps tool execution in async functions
+* Manages STDIO connection to MCP server
+* Spawns server process as a subprocess
+* Discovers available tools dynamically via MCP protocol
 
-#### **3. LangGraph Agent**
-- **StateGraph**: Manages conversation flow
-- **Agent Node**: LLM decision-making with full conversation history
-- **Tool Node**: Executes tool calls in parallel
-- **Conditional Routing**: Decides whether to use tools or respond
+#### 2. Tool Conversion
 
-#### **4. Memory System**
-- Maintains full conversation history as message list
-- Passes complete context to LLM on every turn
-- Supports contextual understanding and recall
-- No external database required (in-memory)
+* Converts MCP tool schemas to LangChain `StructuredTool`s
+* Maps JSON schema types to Python types
+* Uses Pydantic models for runtime validation
+* Executes tools asynchronously
 
-### **Message Flow**
+#### 3. LangGraph Agent
 
-```
-User Input
-    ↓
-[Add to conversation_history]
-    ↓
-[Invoke LangGraph agent with full history]
-    ↓
-Agent Node: LLM analyzes history + new question
-    ↓
-    ├─→ Needs tool? → Tool Node → Execute → Back to Agent
-    └─→ Can answer? → Generate response → Return
-    ↓
-[Add response to conversation_history]
-    ↓
-Display to User
-```
+* `StateGraph` manages agent execution flow
+* Agent node performs reasoning using full conversation history
+* Tool node executes MCP tools when required
+* Conditional routing prevents infinite loops
+
+#### 4. Memory System
+
+* Maintains full conversation history in memory
+* Passes entire message history to the LLM each turn
+* Enables contextual understanding and recall
+* No external database required
 
 ---
 
 ## 🛠️ Customization
 
-### **Adding New Tools**
+### Adding New Tools
 
-1. Add tool to your MCP server (`server/main.py`)
-2. Agent will automatically discover it on startup
-3. No changes needed to agent code!
+1. Add a tool to the MCP server (`server/main.py`)
+2. Restart the agent
 
-### **Changing LLM Model**
+The agent will automatically discover the new tool.
+
+---
+
+### Changing LLM Model
 
 ```python
 llm = ChatGroq(
     groq_api_key=GROQ_API_KEY,
-    model_name="llama-3.1-70b-versatile",  # Change model
+    model_name="llama-3.1-70b-versatile",
     temperature=0
 )
 ```
 
-### **Adjusting System Prompt**
+---
 
-Edit the `system_message` in `run_agent()` function:
+### Adjusting System Prompt
+
+Modify the `system_message` inside `run_agent()`:
+
 ```python
 system_message = SystemMessage(content="""
 Your custom instructions here...
@@ -246,90 +246,57 @@ Your custom instructions here...
 
 ## 🧪 Testing
 
-### **Test Suite**
+### Suggested Test Prompts
 
-Run these prompts to verify functionality:
+**Tool Invocation**
 
-**Tool Invocation:**
-```
-What is the weather in Paris?
-What is the stock price of AAPL?
-Search the web for Python 3.12 features
-```
+* What is the weather in Paris?
+* What is the stock price of AAPL?
+* Search the web for Python 3.12 features
 
-**Memory & Context:**
-```
-What is the weather in London?
-What about Tokyo?
-What was the temperature in the previous city?
-```
+**Memory & Context**
 
-**Memory Recall:**
-```
-What questions have I asked?
-What did we discuss earlier?
-```
+* What is the weather in London?
+* What about Tokyo?
+* What was the temperature in the previous city?
 
-**Direct Answers:**
-```
-What is 5 + 7?
-Tell me a joke
-```
+**Direct Answers**
 
-### **Expected Behavior**
-
-- All tools execute successfully
-- Agent maintains context across turns
-- Can recall previous conversation
-- Answers simple questions without tools
-- No infinite loops or errors
+* What is 5 + 7?
+* Tell me a joke
 
 ---
 
 ## 🐛 Troubleshooting
 
-### **Issue: "GROQ_API_KEY not found"**
-**Solution:** Create `.env` file with your API key
+**Issue:** `GROQ_API_KEY not found`
+**Solution:** Ensure `.env` file exists with a valid API key
 
-### **Issue: "MCP session is not initialized"**
-**Solution:** Ensure `server/main.py` exists and is executable
+**Issue:** `MCP session is not initialized`
+**Solution:** Verify `server/main.py` exists and is executable
 
-### **Issue: Tool schema validation errors**
-**Solution:** Check that MCP server returns correct JSON schema types
-
-### **Issue: Agent doesn't remember previous messages**
-**Solution:** Verify `conversation_history` is being appended correctly
+**Issue:** Tool validation errors
+**Solution:** Check MCP tool JSON schema definitions
 
 ---
 
 ## 📚 Key Concepts
 
-### **MCP (Model Context Protocol)**
-- Standard protocol for connecting AI models to external tools
-- Uses JSON-RPC over STDIO/HTTP for communication
-- Servers expose tools with JSON schemas
+### MCP (Model Context Protocol)
 
-### **LangGraph**
-- Framework for building stateful, multi-step AI applications
-- Uses directed graphs to control agent behavior
-- Prevents common issues like infinite loops
+A protocol for connecting AI models to external tools using structured schemas.
 
-### **ReAct Pattern**
-- Reason + Act: LLM thinks, then uses tools, then responds
-- LangGraph implements this with function calling (not text parsing)
+### LangGraph
 
-### **Conversation Memory**
-- Full history stored as list of messages
-- Each turn: System + History + New Question
-- Enables context understanding and recall
+A framework for building stateful, multi-step AI applications using explicit execution graphs.
 
----
+### ReAct Pattern
 
-## 📖 References
+The agent reasons about the request, invokes tools when needed, and produces a final answer.
 
-- [LangGraph Documentation](https://docs.langchain.com/oss/python/langgraph/overview)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [LangChain Tools](https://python.langchain.com/docs/modules/tools/)
+### Conversation Memory
+
+Full conversation history is preserved and passed to the model on every turn.
 
 ---
 
@@ -341,12 +308,14 @@ This project is provided for educational purposes.
 
 ## 👤 Author
 
-Built as part of MCP integration learning project.
+Built as part of an MCP integration learning project.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Anthropic for MCP specification
-- LangChain team for LangGraph framework
-- Groq for LLM API access
+* MCP specification contributors
+* LangChain & LangGraph teams
+* Groq for LLM API access
+
+---
