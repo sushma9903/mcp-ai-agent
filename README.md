@@ -267,16 +267,22 @@ Your custom instructions here...
 
 ---
 
-## 🐛 Troubleshooting
+## 🐛 Troubleshooting and Notes
 
-**Issue:** `GROQ_API_KEY not found`
-**Solution:** Ensure `.env` file exists with a valid API key
+* **`GROQ_API_KEY not found`**
+  Ensure a `.env` file exists in the project root with a valid `GROQ_API_KEY`, and restart the terminal.
 
-**Issue:** `MCP session is not initialized`
-**Solution:** Verify `server/main.py` exists and is executable
+* **`MCP session is not initialized`**
+  Indicates the MCP server did not start correctly. Verify `server/main.py` exists and the client connects before discovering or invoking tools.
 
-**Issue:** Tool validation errors
-**Solution:** Check MCP tool JSON schema definitions
+* **Agent looping or stopping unexpectedly (ReAct)**
+  While using ReAct, the agent sometimes re-invoked tools due to dynamic MCP schemas. This was resolved by switching to **LangGraph**, which provides explicit state transitions and reliable termination.
+
+* **Tool input validation errors**
+  Occurred when generated tool inputs did not exactly match MCP schemas. Fixed by generating schema-driven tools directly from MCP definitions.
+
+* **Follow-up questions not using context**
+  Initially, conversation history was stored but not reasoned over. Using **LangGraph state** enabled correct handling of contextual and memory-based queries.
 
 ---
 
