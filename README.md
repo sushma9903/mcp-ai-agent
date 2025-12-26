@@ -260,11 +260,6 @@ Your custom instructions here...
 * What about Tokyo?
 * What was the temperature in the previous city?
 
-**Direct Answers**
-
-* What is 5 + 7?
-* Tell me a joke
-
 ---
 
 ## 🐛 Troubleshooting and Notes
