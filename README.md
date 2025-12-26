@@ -283,19 +283,15 @@ Your custom instructions here...
 ## 📚 Key Concepts
 
 #### MCP (Model Context Protocol)
-
 A protocol for connecting AI models to external tools using structured schemas.
 
 #### LangGraph
-
 A framework for building stateful, multi-step AI applications using explicit execution graphs.
 
 #### ReAct Pattern
-
 The agent reasons about the request, invokes tools when needed, and produces a final answer.
 
 #### Conversation Memory
-
 Full conversation history is preserved and passed to the model on every turn.
 
 ---
