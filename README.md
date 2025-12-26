@@ -188,7 +188,7 @@ Agent: You have asked the following questions:
 
 #### 2. Tool Conversion
 
-* Converts MCP tool schemas to LangChain `StructuredTool`s
+* Converts MCP tool schemas to LangChain `StructuredTools`
 * Maps JSON schema types to Python types
 * Uses Pydantic models for runtime validation
 * Executes tools asynchronously
