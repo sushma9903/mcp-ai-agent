@@ -299,23 +299,16 @@ The agent reasons about the request, invokes tools when needed, and produces a f
 Full conversation history is preserved and passed to the model on every turn.
 
 ---
+## 📖 References
 
-## 📄 License
-
-This project is provided for educational purposes.
-
+- [LangGraph Documentation](https://docs.langchain.com/oss/python/langgraph/overview)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [LangChain Tools](https://python.langchain.com/docs/modules/tools/)
+  
 ---
 
 ## 👤 Author
 
 Built as part of an MCP integration learning project.
-
----
-
-## 🙏 Acknowledgments
-
-* MCP specification contributors
-* LangChain & LangGraph teams
-* Groq for LLM API access
 
 ---
