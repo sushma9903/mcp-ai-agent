@@ -282,17 +282,21 @@ Your custom instructions here...
 
 ## 📚 Key Concepts
 
-#### MCP (Model Context Protocol)
-A protocol for connecting AI models to external tools using structured schemas.
+This project is intentionally designed with a clear separation of responsibilities:
 
-#### LangGraph
-A framework for building stateful, multi-step AI applications using explicit execution graphs.
+- **MCP Server** acts as a stable tool layer  
+  It exposes real-world capabilities (weather, stocks, web search) without embedding any AI logic.
 
-#### ReAct Pattern
-The agent reasons about the request, invokes tools when needed, and produces a final answer.
+- **AI Agent (LangGraph)** handles reasoning and decision-making  
+  The agent interprets user intent, decides whether a tool is required, and produces the final response.
 
-#### Conversation Memory
-Full conversation history is preserved and passed to the model on every turn.
+- **LangGraph State Management** ensures predictable execution  
+  Using an explicit graph prevents common agent issues such as repeated tool calls or infinite loops.
+
+- **Conversation Memory** enables contextual understanding  
+  The agent retains full conversation history, allowing follow-up questions and memory-based responses.
+
+This separation makes the system easier to extend, debug, and reason about compared to tightly coupled agent-tool implementations.
 
 ---
 ## 📖 References
