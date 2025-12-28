@@ -48,6 +48,8 @@ class MCPClient:
         self.server_script_path = server_script_path
         self.session: ClientSession | None = None
         self.exit_stack = AsyncExitStack()
+        self.read_stream = None
+        self.write_stream = None
 
     async def connect(self):
         """
@@ -59,23 +61,29 @@ class MCPClient:
             env=None
         )
 
+        # CRITICAL FIX: Properly handle the stdio_client context manager
         stdio_transport = await self.exit_stack.enter_async_context(
             stdio_client(server_params)
         )
 
-        read_stream, write_stream = stdio_transport
+        self.read_stream, self.write_stream = stdio_transport
 
         self.session = await self.exit_stack.enter_async_context(
-            ClientSession(read_stream, write_stream)
+            ClientSession(self.read_stream, self.write_stream)
         )
 
+        # CRITICAL FIX: Initialize session after ensuring connection is stable
         await self.session.initialize()
 
     async def close(self):
         """
         Cleanly shuts down MCP session and server process
         """
-        await self.exit_stack.aclose()
+        try:
+            await self.exit_stack.aclose()
+        except Exception as e:
+            # suppress cleanup errors on Windows
+            pass
 
     async def list_tools(self) -> List[Dict[str, Any]]:
         """
@@ -221,10 +229,13 @@ async def run_agent():
     Main function that connects to MCP server and runs the interactive agent loop.
     """
     # 1. connect to MCP server
-    mcp_client = MCPClient(server_script_path="server/main.py")
-    await mcp_client.connect()
-
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    server_path = os.path.join(os.path.dirname(script_dir), "server", "main.py")
+    mcp_client = MCPClient(server_script_path=server_path)
+    
     try:
+        await mcp_client.connect()
+        
         # 2. fetch MCP tools
         mcp_tools = await mcp_client.list_tools()
         
@@ -247,9 +258,15 @@ async def run_agent():
         system_message = SystemMessage(content="""You are a helpful AI assistant with access to tools.
 
 IMPORTANT: When the user asks about:
-- Weather in a city → use get_weather tool
-- Stock prices for a symbol → use get_stock_price tool  
-- Web search or latest news → use web_search tool
+- Weather in a city → ONLY use get_weather tool
+- Stock prices for a symbol → ONLY use get_stock_price tool  
+- Web search or latest news → ONLY use web_search tool
+
+CRITICAL RULES:
+- Use ONLY the tool that directly answers the user's question
+- Do NOT search for news unless explicitly asked
+- Do NOT combine multiple tools unless the user asks for multiple things
+- If the user asks "what is the stock price of X", only call get_stock_price, nothing else
 
 When the user asks about previous conversations, refer to the message history.
 When the user asks general questions (like math or jokes), answer directly without using tools.
@@ -294,10 +311,13 @@ Always provide clear, concise answers based on the information available.""")
                     print(f"\nAgent: {final_message}\n")
                     
             except Exception as e:
-                print(f"\n Error: {str(e)}\n")
+                print(f"\nError: {str(e)}\n")
                 # Remove the failed user message from history
                 conversation_history.pop()
 
+    except Exception as e:
+        print(f"Failed to initialize agent: {str(e)}")
+        
     finally:
         # 9. cleanup
         await mcp_client.close()
@@ -305,8 +325,14 @@ Always provide clear, concise answers based on the information available.""")
 
 
 if __name__ == "__main__":
-    # Windows-specific event loop policy (prevents async errors on Windows)
+    # CRITICAL FIX: Windows-specific event loop policy
     if sys.platform.startswith('win'):
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        # Use ProactorEventLoop for better subprocess handling on Windows
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     
-    asyncio.run(run_agent())
+    try:
+        asyncio.run(run_agent())
+    except KeyboardInterrupt:
+        print("\nAgent stopped by user.")
+    except Exception as e:
+        print(f"Fatal error: {str(e)}")
