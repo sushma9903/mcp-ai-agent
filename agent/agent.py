@@ -262,11 +262,11 @@ IMPORTANT: When the user asks about:
 - Stock prices for a symbol → ONLY use get_stock_price tool  
 - Web search or latest news → ONLY use web_search tool
 
-CRITICAL RULES:
-- Use ONLY the tool that directly answers the user's question
-- Do NOT search for news unless explicitly asked
-- Do NOT combine multiple tools unless the user asks for multiple things
-- If the user asks "what is the stock price of X", only call get_stock_price, nothing else
+Guidelines:
+- Use the most appropriate tool when a tool is required
+- If a tool call fails, retry once
+- Do not combine tools unless explicitly required
+- For general questions, answer directly without tools
 
 When the user asks about previous conversations, refer to the message history.
 When the user asks general questions (like math or jokes), answer directly without using tools.
@@ -297,23 +297,22 @@ Always provide clear, concise answers based on the information available.""")
                 response = await agent_graph.ainvoke(
                     {"messages": conversation_history}
                 )
-                
-                # Extract the final response
-                final_message = response["messages"][-1]
-                
-                # Add assistant response to history
-                conversation_history.append(final_message)
-                
-                # Print response
-                if hasattr(final_message, 'content'):
-                    print(f"\nAgent: {final_message.content}\n")
-                else:
-                    print(f"\nAgent: {final_message}\n")
-                    
+
             except Exception as e:
-                print(f"\nError: {str(e)}\n")
-                # Remove the failed user message from history
-                conversation_history.pop()
+                # Retry ONCE for transient tool-call failures
+                response = await agent_graph.ainvoke(
+                    {"messages": conversation_history}
+                )
+
+            # Extract final response
+            final_message = response["messages"][-1]
+
+            # Save to memory
+            conversation_history.append(final_message)
+
+            # Print response
+            print(f"\nAgent: {final_message.content}\n")
+
 
     except Exception as e:
         print(f"Failed to initialize agent: {str(e)}")
